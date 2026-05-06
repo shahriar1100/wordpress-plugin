@@ -1,0 +1,374 @@
+/* ====================================
+   MAIN CONTAINER
+==================================== */
+
+.srp-container {
+    max-width: 1200px;
+    margin: 80px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* ====================================
+   HERO SECTION
+==================================== */
+
+.srp-hero-section {
+    background: linear-gradient(
+        135deg,
+        #020617 0%,
+        #111827 50%,
+        #dc2626 100%
+    );
+
+    border-radius: 32px;
+    padding: 80px 60px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.srp-hero-section::before {
+    content: '';
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+    top: -120px;
+    right: -120px;
+}
+
+.srp-hero-badge {
+    display: inline-block;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ff4d4d;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+}
+
+.srp-hero-section h1 {
+    font-size: 68px;
+    line-height: 1.05;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 24px;
+    max-width: 850px;
+}
+
+.srp-hero-section p {
+    max-width: 720px;
+    font-size: 19px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.75);
+}
+
+/* ====================================
+   SEARCH CARD
+==================================== */
+
+.srp-search-card {
+    background: white;
+    border-radius: 32px;
+    padding: 45px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+}
+
+.srp-search-top {
+    margin-bottom: 30px;
+}
+
+.srp-small-title {
+    color: #dc2626;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.srp-search-top h2 {
+    font-size: 52px;
+    line-height: 1.1;
+    font-weight: 900;
+    color: #020617;
+}
+
+/* ====================================
+   SEARCH BOX
+==================================== */
+
+.srp-search-box {
+    display: flex;
+    gap: 18px;
+}
+
+.srp-search-box input {
+    width: 100%;
+    height: 72px;
+    border: 2px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 0 25px;
+    font-size: 18px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.srp-search-box input:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220,38,38,0.08);
+}
+
+.srp-search-box button {
+    min-width: 230px;
+    border: none;
+    background: #dc2626;
+    color: white;
+    border-radius: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.srp-search-box button:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* ====================================
+   RESULT CARD
+==================================== */
+
+.srp-card {
+    background: white;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.srp-header {
+    background: linear-gradient(
+        135deg,
+        #020617 0%,
+        #111827 50%,
+        #dc2626 100%
+    );
+
+    padding: 45px;
+    text-align: center;
+    color: white;
+}
+
+.srp-header h1 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    color: #dcfce7;
+}
+
+.srp-header p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.8);
+}
+
+.srp-body {
+    padding: 40px;
+}
+
+/* ====================================
+   INFO BOX
+==================================== */
+
+.srp-box {
+    background: #f8fafc;
+    padding: 28px;
+    border-radius: 24px;
+    margin-bottom: 25px;
+}
+
+.srp-box h2 {
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.srp-box p {
+    font-size: 30px;
+    font-weight: 800;
+    color: #020617;
+    margin: 0;
+}
+
+/* ====================================
+   COURSE CARD
+==================================== */
+
+.srp-course-card {
+    background: #f8fafc;
+    border-radius: 28px;
+    padding: 28px;
+    margin-bottom: 30px;
+    border: 1px solid #e5e7eb;
+}
+
+.srp-course-top {
+    margin-bottom: 22px;
+}
+
+.srp-course-top h3 {
+    color: #dc2626;
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.srp-course-top p {
+    font-size: 30px;
+    font-weight: 800;
+    color: #020617;
+    margin: 0;
+}
+
+/* ====================================
+   MARK GRID
+==================================== */
+
+.srp-mark-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.srp-mark-box {
+    border-radius: 22px;
+    padding: 25px;
+    text-align: center;
+}
+
+.srp-mark-box h4 {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.srp-mark-box p {
+    font-size: 34px;
+    font-weight: 900;
+    margin: 0;
+}
+
+.green {
+    background: #dcfce7;
+}
+
+.blue {
+    background: #dbeafe;
+}
+
+/* ====================================
+   BUTTON
+==================================== */
+
+.srp-btn {
+    display: block;
+    width: 100%;
+    height: 62px;
+    line-height: 62px;
+    text-align: center;
+    background: #dc2626;
+    color: white;
+    text-decoration: none;
+    border-radius: 18px;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.srp-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* ====================================
+   NOT FOUND
+==================================== */
+
+.srp-not-found {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 22px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: 700;
+    margin-top: 20px;
+}
+
+/* ====================================
+   MOBILE RESPONSIVE
+==================================== */
+
+@media (max-width: 768px) {
+
+    .srp-container {
+        margin: 50px auto;
+    }
+
+    .srp-hero-section {
+        padding: 50px 25px;
+    }
+
+    .srp-hero-section h1 {
+        font-size: 42px;
+    }
+
+    .srp-hero-section p {
+        font-size: 16px;
+    }
+
+    .srp-search-card {
+        padding: 30px 20px;
+    }
+
+    .srp-search-top h2 {
+        font-size: 34px;
+    }
+
+    .srp-search-box {
+        flex-direction: column;
+    }
+
+    .srp-search-box button {
+        width: 100%;
+        height: 65px;
+    }
+
+    .srp-header h1 {
+        font-size: 32px;
+    }
+
+    .srp-body {
+        padding: 25px;
+    }
+
+    .srp-box p {
+        font-size: 24px;
+    }
+
+    .srp-course-top p {
+        font-size: 24px;
+    }
+
+    .srp-mark-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .srp-mark-box p {
+        font-size: 28px;
+    }
+}
