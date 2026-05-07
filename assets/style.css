@@ -169,7 +169,7 @@
     font-size: 42px;
     font-weight: 900;
     margin-bottom: 10px;
-    color: #dcfce7;
+    color: rgba(255,255,255,0.8);
 }
 
 .srp-header p {
@@ -203,6 +203,52 @@
     font-weight: 800;
     color: #020617;
     margin: 0;
+}
+
+/* ====================================
+   URL BOX
+==================================== */
+
+.srp-url-box {
+    margin-bottom: 30px;
+    background: #f8fafc;
+    border-radius: 24px;
+    padding: 25px;
+}
+
+.srp-url-box h3 {
+    font-size: 18px;
+    margin-bottom: 18px;
+    color: #020617;
+}
+
+.srp-url-flex {
+    display: flex;
+    gap: 15px;
+}
+
+.srp-url-flex input {
+    width: 100%;
+    height: 60px;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 0 18px;
+    font-size: 15px;
+}
+
+.srp-copy-btn {
+    min-width: 150px;
+    border: none;
+    background: #111827;
+    color: white;
+    border-radius: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.srp-copy-btn:hover {
+    background: #020617;
 }
 
 /* ====================================
@@ -310,6 +356,14 @@
 }
 
 /* ====================================
+   SINGLE PAGE
+==================================== */
+
+.srp-single-page {
+    padding: 40px 0;
+}
+
+/* ====================================
    MOBILE RESPONSIVE
 ==================================== */
 
@@ -370,5 +424,14 @@
 
     .srp-mark-box p {
         font-size: 28px;
+    }
+
+    .srp-url-flex {
+        flex-direction: column;
+    }
+
+    .srp-copy-btn {
+        width: 100%;
+        height: 55px;
     }
 }

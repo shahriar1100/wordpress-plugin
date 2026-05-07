@@ -55,7 +55,7 @@
 
     </div>
 
-    <!-- Result -->
+    <!-- AJAX Result -->
 
     <div id="srp-result"></div>
 

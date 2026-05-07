@@ -6,7 +6,14 @@ if (!defined('ABSPATH')) {
 
 global $wpdb;
 
+/*
+|--------------------------------------------------------------------------
+| Database Tables
+|--------------------------------------------------------------------------
+*/
+
 $students_table = $wpdb->prefix . 'srp_students';
+
 $courses_table = $wpdb->prefix . 'srp_courses';
 
 $edit_data = null;
@@ -19,18 +26,28 @@ $edit_data = null;
 
 if (isset($_GET['delete'])) {
 
-    $delete_roll = sanitize_text_field($_GET['delete']);
+    $delete_roll = sanitize_text_field(
+        $_GET['delete']
+    );
 
     $student = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT * FROM {$students_table} WHERE roll = %s",
+            "
+            SELECT * FROM {$students_table}
+            WHERE roll = %s
+            ",
             $delete_roll
         )
     );
 
     if ($student) {
 
-        // Delete all courses
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Courses
+        |--------------------------------------------------------------------------
+        */
+
         $wpdb->delete(
             $courses_table,
             array(
@@ -38,7 +55,12 @@ if (isset($_GET['delete'])) {
             )
         );
 
-        // Delete student
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Student
+        |--------------------------------------------------------------------------
+        */
+
         $wpdb->delete(
             $students_table,
             array(
@@ -48,7 +70,7 @@ if (isset($_GET['delete'])) {
 
         echo '
             <div class="updated">
-                <p>Student Deleted Successfully!</p>
+                <p>Student deleted successfully.</p>
             </div>
         ';
     }
@@ -62,7 +84,9 @@ if (isset($_GET['delete'])) {
 
 if (isset($_GET['edit'])) {
 
-    $edit_roll = sanitize_text_field($_GET['edit']);
+    $edit_roll = sanitize_text_field(
+        $_GET['edit']
+    );
 
     $edit_data = $wpdb->get_row(
         $wpdb->prepare(
@@ -98,23 +122,46 @@ if (isset($_GET['edit'])) {
 
 if (isset($_POST['srp_save_student'])) {
 
-    $roll = sanitize_text_field($_POST['roll']);
+    $roll = sanitize_text_field(
+        $_POST['roll']
+    );
 
-    $student_name = sanitize_text_field($_POST['student_name']);
+    $student_name = sanitize_text_field(
+        $_POST['student_name']
+    );
 
-    $father_name = sanitize_text_field($_POST['father_name']);
+    $father_name = sanitize_text_field(
+        $_POST['father_name']
+    );
 
-    $course_name = sanitize_text_field($_POST['course_name']);
+    $course_name = sanitize_text_field(
+        $_POST['course_name']
+    );
 
-    $mark_obtained = sanitize_text_field($_POST['mark_obtained']);
+    $mark_obtained = sanitize_text_field(
+        $_POST['mark_obtained']
+    );
 
-    $grade = sanitize_text_field($_POST['grade']);
+    $grade = sanitize_text_field(
+        $_POST['grade']
+    );
 
-    $certificate_url = esc_url($_POST['certificate_url']);
+    $certificate_url = esc_url(
+        $_POST['certificate_url']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check Existing Student
+    |--------------------------------------------------------------------------
+    */
 
     $existing_student = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT * FROM $students_table WHERE roll = %s",
+            "
+            SELECT * FROM {$students_table}
+            WHERE roll = %s
+            ",
             $roll
         )
     );
@@ -129,27 +176,53 @@ if (isset($_POST['srp_save_student'])) {
 
         $student_id = $existing_student->id;
 
-        // Update student info
+        /*
+        |--------------------------------------------------------------------------
+        | Update Student
+        |--------------------------------------------------------------------------
+        */
+
         $wpdb->update(
+
             $students_table,
+
             array(
+
                 'student_name' => $student_name,
+
                 'father_name' => $father_name
+
             ),
+
             array(
+
                 'id' => $student_id
+
             )
         );
 
-        // Add new course
+        /*
+        |--------------------------------------------------------------------------
+        | Add New Course
+        |--------------------------------------------------------------------------
+        */
+
         $wpdb->insert(
+
             $courses_table,
+
             array(
+
                 'student_id' => $student_id,
+
                 'course_name' => $course_name,
+
                 'mark_obtained' => $mark_obtained,
+
                 'grade' => $grade,
+
                 'certificate_url' => $certificate_url
+
             )
         );
 
@@ -157,37 +230,56 @@ if (isset($_POST['srp_save_student'])) {
 
         /*
         |--------------------------------------------------------------------------
-        | New Student
+        | Create Student
         |--------------------------------------------------------------------------
         */
 
         $wpdb->insert(
+
             $students_table,
+
             array(
+
                 'roll' => $roll,
+
                 'student_name' => $student_name,
+
                 'father_name' => $father_name
+
             )
         );
 
         $student_id = $wpdb->insert_id;
 
-        // Insert first course
+        /*
+        |--------------------------------------------------------------------------
+        | Insert First Course
+        |--------------------------------------------------------------------------
+        */
+
         $wpdb->insert(
+
             $courses_table,
+
             array(
+
                 'student_id' => $student_id,
+
                 'course_name' => $course_name,
+
                 'mark_obtained' => $mark_obtained,
+
                 'grade' => $grade,
+
                 'certificate_url' => $certificate_url
+
             )
         );
     }
 
     echo '
         <div class="updated">
-            <p>Student Saved Successfully!</p>
+            <p>Student saved successfully.</p>
         </div>
     ';
 }
@@ -196,14 +288,20 @@ if (isset($_POST['srp_save_student'])) {
 
 <div class="wrap">
 
-    <h1>Student Result System</h1>
+    <h1>
+        Student Result System
+    </h1>
 
     <p>
-        Use this shortcode:
-        <strong>[student_result_search]</strong>
+        Shortcode:
+        <strong>
+            [student_result_search]
+        </strong>
     </p>
 
     <hr>
+
+    <!-- Form -->
 
     <form method="POST">
 
@@ -213,7 +311,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Student Roll</th>
+                <th>
+                    Student Roll
+                </th>
 
                 <td>
 
@@ -233,7 +333,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Student Name</th>
+                <th>
+                    Student Name
+                </th>
 
                 <td>
 
@@ -253,7 +355,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Father Name</th>
+                <th>
+                    Father's Name
+                </th>
 
                 <td>
 
@@ -269,11 +373,13 @@ if (isset($_POST['srp_save_student'])) {
 
             </tr>
 
-            <!-- Course Name -->
+            <!-- Course -->
 
             <tr>
 
-                <th>Course Name</th>
+                <th>
+                    Course Name
+                </th>
 
                 <td>
 
@@ -293,7 +399,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Mark</th>
+                <th>
+                    Mark
+                </th>
 
                 <td>
 
@@ -313,7 +421,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Grade</th>
+                <th>
+                    Grade
+                </th>
 
                 <td>
 
@@ -333,7 +443,9 @@ if (isset($_POST['srp_save_student'])) {
 
             <tr>
 
-                <th>Certificate URL</th>
+                <th>
+                    Certificate URL
+                </th>
 
                 <td>
 
@@ -351,13 +463,25 @@ if (isset($_POST['srp_save_student'])) {
 
         </table>
 
-        <?php submit_button('Save Student & Course', 'primary', 'srp_save_student'); ?>
+        <?php
+
+        submit_button(
+            'Save Student & Course',
+            'primary',
+            'srp_save_student'
+        );
+
+        ?>
 
     </form>
 
     <hr>
 
-    <h2>Saved Students</h2>
+    <!-- Student List -->
+
+    <h2>
+        Saved Students
+    </h2>
 
     <table class="widefat striped">
 
@@ -377,9 +501,7 @@ if (isset($_POST['srp_save_student'])) {
 
                 <th>Grades</th>
 
-                <th>Edit</th>
-
-                <th>Delete</th>
+                <th>Actions</th>
 
             </tr>
 
@@ -410,10 +532,15 @@ if (isset($_POST['srp_save_student'])) {
             */
 
             $total_students = $wpdb->get_var(
-                "SELECT COUNT(*) FROM {$students_table}"
+                "
+                SELECT COUNT(*) 
+                FROM {$students_table}
+                "
             );
 
-            $total_pages = ceil($total_students / $per_page);
+            $total_pages = ceil(
+                $total_students / $per_page
+            );
 
             /*
             |--------------------------------------------------------------------------
@@ -437,6 +564,12 @@ if (isset($_POST['srp_save_student'])) {
 
                 foreach ($students as $student) :
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Get Courses
+                    |--------------------------------------------------------------------------
+                    */
+
                     $courses = $wpdb->get_results(
                         $wpdb->prepare(
                             "
@@ -446,133 +579,150 @@ if (isset($_POST['srp_save_student'])) {
                             $student->id
                         )
                     );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Student URL
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $student_url = home_url(
+                        '/students-certificate/' . $student->roll
+                    );
             ?>
 
-                <tr>
+                    <tr>
 
-                    <!-- Roll -->
+                        <!-- Roll -->
 
-                    <td>
-                        <?php echo esc_html($student->roll); ?>
-                    </td>
+                        <td>
+                            <?php echo esc_html($student->roll); ?>
+                        </td>
 
-                    <!-- Name -->
+                        <!-- Name -->
 
-                    <td>
-                        <?php echo esc_html($student->student_name); ?>
-                    </td>
+                        <td>
+                            <?php echo esc_html($student->student_name); ?>
+                        </td>
 
-                    <!-- Father -->
+                        <!-- Father -->
 
-                    <td>
-                        <?php echo esc_html($student->father_name); ?>
-                    </td>
+                        <td>
+                            <?php echo esc_html($student->father_name); ?>
+                        </td>
 
-                    <!-- Courses -->
+                        <!-- Courses -->
 
-                    <td>
+                        <td>
 
-                        <?php
+                            <?php
 
-                        if ($courses) :
+                            if ($courses) :
 
-                            foreach ($courses as $course) :
-                        ?>
+                                foreach ($courses as $course) :
+                            ?>
 
-                            <div style="margin-bottom:10px;">
+                                    <div style="margin-bottom:10px;">
 
-                                <strong>
-                                    <?php echo esc_html($course->course_name); ?>
-                                </strong>
+                                        <strong>
+                                            <?php echo esc_html($course->course_name); ?>
+                                        </strong>
 
-                            </div>
+                                    </div>
 
-                        <?php
-                            endforeach;
+                            <?php
+                                endforeach;
 
-                        endif;
-                        ?>
+                            endif;
+                            ?>
 
-                    </td>
+                        </td>
 
-                    <!-- Marks -->
+                        <!-- Marks -->
 
-                    <td>
+                        <td>
 
-                        <?php
+                            <?php
 
-                        if ($courses) :
+                            if ($courses) :
 
-                            foreach ($courses as $course) :
-                        ?>
+                                foreach ($courses as $course) :
+                            ?>
 
-                            <div style="margin-bottom:10px;">
+                                    <div style="margin-bottom:10px;">
 
-                                <?php echo esc_html($course->mark_obtained); ?>
+                                        <?php echo esc_html($course->mark_obtained); ?>
 
-                            </div>
+                                    </div>
 
-                        <?php
-                            endforeach;
+                            <?php
+                                endforeach;
 
-                        endif;
-                        ?>
+                            endif;
+                            ?>
 
-                    </td>
+                        </td>
 
-                    <!-- Grades -->
+                        <!-- Grades -->
 
-                    <td>
+                        <td>
 
-                        <?php
+                            <?php
 
-                        if ($courses) :
+                            if ($courses) :
 
-                            foreach ($courses as $course) :
-                        ?>
+                                foreach ($courses as $course) :
+                            ?>
 
-                            <div style="margin-bottom:10px;">
+                                    <div style="margin-bottom:10px;">
 
-                                <?php echo esc_html($course->grade); ?>
+                                        <?php echo esc_html($course->grade); ?>
 
-                            </div>
+                                    </div>
 
-                        <?php
-                            endforeach;
+                            <?php
+                                endforeach;
 
-                        endif;
-                        ?>
+                            endif;
+                            ?>
 
-                    </td>
+                        </td>
 
-                    <!-- Edit -->
+                        <!-- Actions -->
 
-                    <td>
+                        <td>
 
-                        <a
-                            href="?page=student-result-pro&edit=<?php echo $student->roll; ?>"
-                            class="button button-primary"
-                        >
-                            Edit
-                        </a>
+                            <!-- Edit -->
 
-                    </td>
+                            <a
+                                href="?page=student-result-pro&edit=<?php echo $student->roll; ?>"
+                                class="button button-primary"
+                            >
+                                Edit
+                            </a>
 
-                    <!-- Delete -->
+                            <!-- Delete -->
 
-                    <td>
+                            <a
+                                href="?page=student-result-pro&delete=<?php echo $student->roll; ?>"
+                                class="button button-secondary"
+                                onclick="return confirm('Are you sure?')"
+                            >
+                                Delete
+                            </a>
 
-                        <a
-                            href="?page=student-result-pro&delete=<?php echo $student->roll; ?>"
-                            class="button button-secondary"
-                            onclick="return confirm('Are you sure?')"
-                        >
-                            Delete
-                        </a>
+                            <!-- Copy URL -->
 
-                    </td>
+                            <button
+                                class="button srp-copy-url-btn"
+                                onclick="navigator.clipboard.writeText('<?php echo esc_url($student_url); ?>'); this.innerText='Copied!';"
+                            >
+                                Copy URL
+                            </button>
 
-                </tr>
+                        </td>
+
+                    </tr>
 
             <?php
 
@@ -583,8 +733,10 @@ if (isset($_POST['srp_save_student'])) {
 
                 <tr>
 
-                    <td colspan="8">
+                    <td colspan="7">
+
                         No Student Found
+
                     </td>
 
                 </tr>
@@ -597,13 +749,16 @@ if (isset($_POST['srp_save_student'])) {
 
     <!-- Pagination -->
 
-    <div style="margin-top:20px;">
+    <div class="tablenav-pages" style="margin-top:20px;">
 
         <?php
 
         echo paginate_links(array(
 
-            'base' => add_query_arg('paged', '%#%'),
+            'base' => add_query_arg(
+                'paged',
+                '%#%'
+            ),
 
             'format' => '',
 

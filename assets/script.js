@@ -1,129 +1,271 @@
 jQuery(document).ready(function ($) {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Search Student
+    |--------------------------------------------------------------------------
+    */
+
     $('#srp-search-btn').on('click', function () {
 
         let roll = $('#srp-roll').val();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Empty Roll
+        |--------------------------------------------------------------------------
+        */
 
         if (roll === '') {
 
             $('#srp-result').html(`
                 <div class="srp-not-found">
-                    Please Enter Roll Number
+                    Please enter a roll number.
                 </div>
             `);
 
             return;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Loading State
+        |--------------------------------------------------------------------------
+        */
+
+        $('#srp-result').html(`
+            <div class="srp-search-card">
+                <h2 style="text-align:center;">
+                    Searching...
+                </h2>
+            </div>
+        `);
+
+        /*
+        |--------------------------------------------------------------------------
+        | AJAX Request
+        |--------------------------------------------------------------------------
+        */
+
         $.ajax({
+
             url: srp_ajax_obj.ajax_url,
+
             type: 'POST',
+
             data: {
+
                 action: 'srp_search_student',
+
                 roll: roll
-            },
-
-            beforeSend: function () {
-
-                $('#srp-result').html(`
-                    <div class="srp-not-found">
-                        Searching...
-                    </div>
-                `);
             },
 
             success: function (response) {
 
+                /*
+                |--------------------------------------------------------------------------
+                | Student Found
+                |--------------------------------------------------------------------------
+                */
+
                 if (response.success) {
 
                     let student = response.data.student;
+
                     let courses = response.data.courses;
 
-                    let courseHTML = '';
+                    let student_url = response.data.student_url;
 
-                    courses.forEach(function (course, index) {
+                    let coursesHTML = '';
 
-                        courseHTML += `
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Courses Loop
+                    |--------------------------------------------------------------------------
+                    */
+
+                    courses.forEach(function (course) {
+
+                        coursesHTML += `
 
                             <div class="srp-course-card">
 
+                                <!-- Course -->
+
                                 <div class="srp-course-top">
-                                    <h3>Course ${index + 1}</h3>
-                                    <p>${course.course_name}</p>
+
+                                    <h3>
+                                        COURSE
+                                    </h3>
+
+                                    <p>
+                                        ${course.course_name}
+                                    </p>
+
                                 </div>
+
+                                <!-- Mark & Grade -->
 
                                 <div class="srp-mark-grid">
 
+                                    <!-- Mark -->
+
                                     <div class="srp-mark-box green">
-                                        <h4>Mark</h4>
-                                        <p>${course.mark_obtained}</p>
+
+                                        <h4>
+                                            Mark
+                                        </h4>
+
+                                        <p>
+                                            ${course.mark_obtained}
+                                        </p>
+
                                     </div>
 
+                                    <!-- Grade -->
+
                                     <div class="srp-mark-box blue">
-                                        <h4>Grade</h4>
-                                        <p>${course.grade}</p>
+
+                                        <h4>
+                                            Grade
+                                        </h4>
+
+                                        <p>
+                                            ${course.grade}
+                                        </p>
+
                                     </div>
 
                                 </div>
 
-                                <a 
-                                    href="${course.certificate_url}" 
-                                    target="_blank" 
+                                <!-- Certificate -->
+
+                                <a
+                                    href="${course.certificate_url}"
+                                    target="_blank"
                                     class="srp-btn"
                                 >
                                     Download Certificate
                                 </a>
 
                             </div>
+
                         `;
                     });
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Final Result HTML
+                    |--------------------------------------------------------------------------
+                    */
 
                     $('#srp-result').html(`
 
                         <div class="srp-card">
 
+                            <!-- Header -->
+
                             <div class="srp-header">
-                                <h1>Student Information</h1>
-                                <p>Roll Number: ${student.roll}</p>
+
+                                <h1>
+                                    Student Information
+                                </h1>
+
+                                <p>
+                                    Roll Number:
+                                    ${student.roll}
+                                </p>
+
                             </div>
+
+                            <!-- Body -->
 
                             <div class="srp-body">
 
-                                <div class="srp-box">
-                                    <h2>Student Name</h2>
-                                    <p>${student.student_name}</p>
-                                </div>
+                                <!-- Student Name -->
 
                                 <div class="srp-box">
-                                    <h2>Father's Name</h2>
-                                    <p>${student.father_name}</p>
+
+                                    <h2>
+                                        Student Name
+                                    </h2>
+
+                                    <p>
+                                        ${student.student_name}
+                                    </p>
+
                                 </div>
 
-                                ${courseHTML}
+                                <!-- Father Name -->
+
+                                <div class="srp-box">
+
+                                    <h2>
+                                        Father's Name
+                                    </h2>
+
+                                    <p>
+                                        ${student.father_name}
+                                    </p>
+
+                                </div>
+
+                                <!-- Verification URL -->
+
+                                <!-- Courses -->
+
+                                ${coursesHTML}
 
                             </div>
 
                         </div>
+
                     `);
 
                 } else {
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Student Not Found
+                    |--------------------------------------------------------------------------
+                    */
+
                     $('#srp-result').html(`
                         <div class="srp-not-found">
-                            Student Not Found
+                            Student not found.
                         </div>
                     `);
                 }
             },
 
+            /*
+            |--------------------------------------------------------------------------
+            | AJAX Error
+            |--------------------------------------------------------------------------
+            */
+
             error: function () {
 
                 $('#srp-result').html(`
                     <div class="srp-not-found">
-                        Something went wrong
+                        Something went wrong.
                     </div>
                 `);
             }
         });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enter Key Search
+    |--------------------------------------------------------------------------
+    */
+
+    $('#srp-roll').on('keypress', function (e) {
+
+        if (e.which === 13) {
+
+            $('#srp-search-btn').click();
+        }
     });
 });
