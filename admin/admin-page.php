@@ -389,11 +389,48 @@ if (isset($_POST['srp_save_student'])) {
 
             <?php
 
+            /*
+            |--------------------------------------------------------------------------
+            | Pagination
+            |--------------------------------------------------------------------------
+            */
+
+            $per_page = 10;
+
+            $current_page = isset($_GET['paged'])
+                ? max(1, intval($_GET['paged']))
+                : 1;
+
+            $offset = ($current_page - 1) * $per_page;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Total Students
+            |--------------------------------------------------------------------------
+            */
+
+            $total_students = $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$students_table}"
+            );
+
+            $total_pages = ceil($total_students / $per_page);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Students
+            |--------------------------------------------------------------------------
+            */
+
             $students = $wpdb->get_results(
-                "
-                SELECT * FROM {$students_table}
-                ORDER BY id DESC
-                "
+                $wpdb->prepare(
+                    "
+                    SELECT * FROM {$students_table}
+                    ORDER BY id DESC
+                    LIMIT %d OFFSET %d
+                    ",
+                    $per_page,
+                    $offset
+                )
             );
 
             if ($students) :
@@ -557,5 +594,31 @@ if (isset($_POST['srp_save_student'])) {
         </tbody>
 
     </table>
+
+    <!-- Pagination -->
+
+    <div style="margin-top:20px;">
+
+        <?php
+
+        echo paginate_links(array(
+
+            'base' => add_query_arg('paged', '%#%'),
+
+            'format' => '',
+
+            'prev_text' => '« Prev',
+
+            'next_text' => 'Next »',
+
+            'total' => $total_pages,
+
+            'current' => $current_page
+
+        ));
+
+        ?>
+
+    </div>
 
 </div>

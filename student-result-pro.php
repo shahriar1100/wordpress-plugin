@@ -2,7 +2,7 @@
 /*
 Plugin Name: Student Result Pro
 Description: Dynamic student result management system.
-Version: 4.0
+Version: 5.0
 Author: AL SHAHRIAR
 */
 
