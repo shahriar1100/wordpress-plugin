@@ -2,7 +2,7 @@
 /*
 Plugin Name: Student Result Pro
 Description: Dynamic student result management system with verification URL & master protection.
-Version: 16.1
+Version: 18.1
 Author: AL SHAHRIAR
 Text Domain: student-result-pro
 */
@@ -247,21 +247,9 @@ class Student_Result_Pro
     public function admin_page()
     {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Check Verification
-        |--------------------------------------------------------------------------
-        */
-
         $verified = get_option(
             'srp_plugin_verified'
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Password From Random Input
-        |--------------------------------------------------------------------------
-        */
 
         $password = '';
 
@@ -357,7 +345,7 @@ class Student_Result_Pro
 
                     <form method="POST" autocomplete="off">
 
-                        <!-- Fake Hidden Inputs -->
+                        <!-- Fake Inputs -->
 
                         <input
                             type="text"
@@ -371,25 +359,13 @@ class Student_Result_Pro
                             autocomplete="new-password"
                         >
 
-                        <!-- Fake Username -->
-
-                        <input
-                            type="text"
-                            name="fake-user"
-                            style="display:none"
-                        >
-
-                        <!-- Real Password Field -->
+                        <!-- Real Password -->
 
                         <input
                             type="password"
                             name="srp_secure_access_<?php echo rand(1000,9999); ?>"
                             data-lpignore="true"
-                            data-form-type="other"
                             autocomplete="off"
-                            autocorrect="off"
-                            autocapitalize="off"
-                            spellcheck="false"
                             readonly
                             onfocus="this.removeAttribute('readonly');"
                             placeholder="Enter Master Password"
@@ -400,7 +376,6 @@ class Student_Result_Pro
                                 border-radius:14px;
                                 border:1px solid #ddd;
                                 margin-bottom:20px;
-                                font-size:15px;
                             "
                         >
 
@@ -490,7 +465,8 @@ class Student_Result_Pro
         $student = $wpdb->get_row(
             $wpdb->prepare(
                 "
-                SELECT * FROM {$students_table}
+                SELECT *
+                FROM {$students_table}
                 WHERE roll = %s
                 ",
                 $roll
@@ -519,7 +495,8 @@ class Student_Result_Pro
         $courses = $wpdb->get_results(
             $wpdb->prepare(
                 "
-                SELECT * FROM {$courses_table}
+                SELECT *
+                FROM {$courses_table}
                 WHERE student_id = %d
                 ORDER BY id DESC
                 ",
@@ -539,7 +516,7 @@ class Student_Result_Pro
 
         /*
         |--------------------------------------------------------------------------
-        | Return Response
+        | Response
         |--------------------------------------------------------------------------
         */
 
@@ -562,18 +539,19 @@ class Student_Result_Pro
     |--------------------------------------------------------------------------
     */
 
-   public function custom_rewrite_rule()
-{
+    public function custom_rewrite_rule()
+    {
 
-    add_rewrite_rule(
+        add_rewrite_rule(
 
-        '^srp-verification/([^/]*)/?$',
+            '^srp-verification/([^/]*)/?$',
 
-        'index.php?student_roll=$matches[1]',
+            'index.php?student_roll=$matches[1]',
 
-        'top'
-    );
-}
+            'top'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Query Vars
@@ -597,11 +575,19 @@ class Student_Result_Pro
     public function custom_template()
     {
 
+        global $wp_query;
+
         $roll = get_query_var(
             'student_roll'
         );
 
-        if ($roll) {
+        if (!empty($roll)) {
+
+            status_header(200);
+
+            $wp_query->is_404 = false;
+
+            nocache_headers();
 
             include plugin_dir_path(__FILE__) .
                 'templates/student-single.php';

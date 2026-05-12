@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
 
     $('#srp-search-btn').on('click', function () {
 
-        let roll = $('#srp-roll').val();
+        let roll = $('#srp-roll').val().trim();
 
         /*
         |--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ jQuery(document).ready(function ($) {
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Courses Loop
+                    | Course Loop
                     |--------------------------------------------------------------------------
                     */
 
@@ -153,7 +153,7 @@ jQuery(document).ready(function ($) {
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Final Result HTML
+                    | Final Result
                     |--------------------------------------------------------------------------
                     */
 
@@ -265,6 +265,21 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Course Item Active Class
+    |--------------------------------------------------------------------------
+    */
+
+    $('.srp-course-item input').on('change', function () {
+
+        $('.srp-course-item').removeClass('active');
+
+        $(this)
+            .closest('.srp-course-item')
+            .addClass('active');
+    });
+
 });
 
 /*
@@ -277,15 +292,31 @@ function copyStudentURL(button) {
 
     let url = button.getAttribute('data-url');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Copy Clipboard
+    |--------------------------------------------------------------------------
+    */
+
     navigator.clipboard.writeText(url);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Button Feedback
+    |--------------------------------------------------------------------------
+    */
 
     let originalText = button.innerText;
 
     button.innerText = 'Copied!';
 
+    button.disabled = true;
+
     setTimeout(function () {
 
         button.innerText = originalText;
+
+        button.disabled = false;
 
     }, 2000);
 }
