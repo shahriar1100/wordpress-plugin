@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Student Result Pro
-Description: Dynamic student result management system with certificate verification URL.
-Version: 9.0
+Description: Dynamic student result management system with verification URL & master protection.
+Version: 16.1
 Author: AL SHAHRIAR
 Text Domain: student-result-pro
 */
@@ -16,6 +16,14 @@ class Student_Result_Pro
 
     /*
     |--------------------------------------------------------------------------
+    | Master Password
+    |--------------------------------------------------------------------------
+    */
+
+    private $master_password = 'SHAHRIAR_SRS_PRO_2026';
+
+    /*
+    |--------------------------------------------------------------------------
     | Constructor
     |--------------------------------------------------------------------------
     */
@@ -23,60 +31,30 @@ class Student_Result_Pro
     public function __construct()
     {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Activation Hook
-        |--------------------------------------------------------------------------
-        */
-
         register_activation_hook(
             __FILE__,
             array($this, 'activate_plugin')
         );
-
-        register_deactivation_hook(
-            __FILE__,
-            array($this, 'deactivate_plugin')
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Admin Menu
-        |--------------------------------------------------------------------------
-        */
 
         add_action(
             'admin_menu',
             array($this, 'admin_menu')
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Frontend Assets
-        |--------------------------------------------------------------------------
-        */
-
         add_action(
             'wp_enqueue_scripts',
             array($this, 'enqueue_assets')
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Shortcode
-        |--------------------------------------------------------------------------
-        */
+        add_action(
+            'admin_enqueue_scripts',
+            array($this, 'enqueue_assets')
+        );
 
         add_shortcode(
             'student_result_search',
             array($this, 'search_shortcode')
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | AJAX Search
-        |--------------------------------------------------------------------------
-        */
 
         add_action(
             'wp_ajax_srp_search_student',
@@ -87,12 +65,6 @@ class Student_Result_Pro
             'wp_ajax_nopriv_srp_search_student',
             array($this, 'search_student')
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Student Verification URL
-        |--------------------------------------------------------------------------
-        */
 
         add_action(
             'init',
@@ -120,22 +92,13 @@ class Student_Result_Pro
     {
 
         $this->create_tables();
+
+        flush_rewrite_rules();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Plugin Deactivation
-    |--------------------------------------------------------------------------
-    */
-
-    public function deactivate_plugin()
-    {
-        // Nothing for now
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Create Database Tables
+    | Create Tables
     |--------------------------------------------------------------------------
     */
 
@@ -213,7 +176,7 @@ class Student_Result_Pro
 
     /*
     |--------------------------------------------------------------------------
-    | Enqueue CSS & JS
+    | Enqueue Assets
     |--------------------------------------------------------------------------
     */
 
@@ -284,13 +247,200 @@ class Student_Result_Pro
     public function admin_page()
     {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Check Verification
+        |--------------------------------------------------------------------------
+        */
+
+        $verified = get_option(
+            'srp_plugin_verified'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Password From Random Input
+        |--------------------------------------------------------------------------
+        */
+
+        $password = '';
+
+        foreach ($_POST as $key => $value) {
+
+            if (
+                strpos(
+                    $key,
+                    'srp_secure_access_'
+                ) !== false
+            ) {
+
+                $password = sanitize_text_field(
+                    $value
+                );
+
+                break;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verify Password
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($password)) {
+
+            if (
+                $password === $this->master_password
+            ) {
+
+                update_option(
+                    'srp_plugin_verified',
+                    true
+                );
+
+                $verified = true;
+
+            } else {
+
+                echo '
+                    <div class="notice notice-error">
+                        <p>Invalid Master Password.</p>
+                    </div>
+                ';
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Locked Screen
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$verified) {
+
+            ?>
+
+            <div class="wrap">
+
+                <div
+                    style="
+                        max-width:520px;
+                        margin:100px auto;
+                        background:#fff;
+                        padding:45px;
+                        border-radius:24px;
+                        box-shadow:0 15px 50px rgba(0,0,0,0.08);
+                    "
+                >
+
+                    <h1
+                        style="
+                            margin-bottom:18px;
+                            font-size:34px;
+                            font-weight:900;
+                        "
+                    >
+                        Plugin Verification
+                    </h1>
+
+                    <p
+                        style="
+                            color:#666;
+                            line-height:1.8;
+                            margin-bottom:30px;
+                        "
+                    >
+                        Enter master password to unlock
+                        Student Result Pro.
+                    </p>
+
+                    <form method="POST" autocomplete="off">
+
+                        <!-- Fake Hidden Inputs -->
+
+                        <input
+                            type="text"
+                            style="display:none"
+                            autocomplete="username"
+                        >
+
+                        <input
+                            type="password"
+                            style="display:none"
+                            autocomplete="new-password"
+                        >
+
+                        <!-- Fake Username -->
+
+                        <input
+                            type="text"
+                            name="fake-user"
+                            style="display:none"
+                        >
+
+                        <!-- Real Password Field -->
+
+                        <input
+                            type="password"
+                            name="srp_secure_access_<?php echo rand(1000,9999); ?>"
+                            data-lpignore="true"
+                            data-form-type="other"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            readonly
+                            onfocus="this.removeAttribute('readonly');"
+                            placeholder="Enter Master Password"
+                            style="
+                                width:100%;
+                                height:58px;
+                                padding:0 20px;
+                                border-radius:14px;
+                                border:1px solid #ddd;
+                                margin-bottom:20px;
+                                font-size:15px;
+                            "
+                        >
+
+                        <button
+                            type="submit"
+                            class="button button-primary"
+                            style="
+                                width:100%;
+                                height:54px;
+                                font-size:16px;
+                                font-weight:700;
+                            "
+                        >
+                            Unlock Plugin
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <?php
+
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Load Dashboard
+        |--------------------------------------------------------------------------
+        */
+
         require_once plugin_dir_path(__FILE__) .
             'admin/admin-page.php';
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Frontend Shortcode
+    | Shortcode
     |--------------------------------------------------------------------------
     */
 
@@ -307,7 +457,7 @@ class Student_Result_Pro
 
     /*
     |--------------------------------------------------------------------------
-    | AJAX Student Search
+    | AJAX Search
     |--------------------------------------------------------------------------
     */
 
@@ -379,12 +529,12 @@ class Student_Result_Pro
 
         /*
         |--------------------------------------------------------------------------
-        | Student Verification URL
+        | Student URL
         |--------------------------------------------------------------------------
         */
 
         $student_url = home_url(
-            '/students-certificate/' . $student->roll
+            '/srp-verification/' . $student->roll
         );
 
         /*
@@ -408,26 +558,25 @@ class Student_Result_Pro
 
     /*
     |--------------------------------------------------------------------------
-    | Custom Rewrite Rule
+    | Rewrite Rule
     |--------------------------------------------------------------------------
     */
 
-    public function custom_rewrite_rule()
-    {
+   public function custom_rewrite_rule()
+{
 
-        add_rewrite_rule(
+    add_rewrite_rule(
 
-            '^students-certificate/([^/]*)/?',
+        '^srp-verification/([^/]*)/?$',
 
-            'index.php?student_roll=$matches[1]',
+        'index.php?student_roll=$matches[1]',
 
-            'top'
-        );
-    }
-
+        'top'
+    );
+}
     /*
     |--------------------------------------------------------------------------
-    | Register Query Variable
+    | Query Vars
     |--------------------------------------------------------------------------
     */
 
@@ -441,14 +590,16 @@ class Student_Result_Pro
 
     /*
     |--------------------------------------------------------------------------
-    | Load Custom Template
+    | Custom Template
     |--------------------------------------------------------------------------
     */
 
     public function custom_template()
     {
 
-        $roll = get_query_var('student_roll');
+        $roll = get_query_var(
+            'student_roll'
+        );
 
         if ($roll) {
 

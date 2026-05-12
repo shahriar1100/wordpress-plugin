@@ -74,8 +74,6 @@ jQuery(document).ready(function ($) {
 
                     let courses = response.data.courses;
 
-                    let student_url = response.data.student_url;
-
                     let coursesHTML = '';
 
                     /*
@@ -210,8 +208,6 @@ jQuery(document).ready(function ($) {
 
                                 </div>
 
-                                <!-- Verification URL -->
-
                                 <!-- Courses -->
 
                                 ${coursesHTML}
@@ -268,4 +264,28 @@ jQuery(document).ready(function ($) {
             $('#srp-search-btn').click();
         }
     });
+
 });
+
+/*
+|--------------------------------------------------------------------------
+| Copy Student URL
+|--------------------------------------------------------------------------
+*/
+
+function copyStudentURL(button) {
+
+    let url = button.getAttribute('data-url');
+
+    navigator.clipboard.writeText(url);
+
+    let originalText = button.innerText;
+
+    button.innerText = 'Copied!';
+
+    setTimeout(function () {
+
+        button.innerText = originalText;
+
+    }, 2000);
+}

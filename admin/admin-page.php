@@ -178,7 +178,7 @@ if (isset($_POST['srp_save_student'])) {
 
         /*
         |--------------------------------------------------------------------------
-        | Update Student
+        | Update Student Info
         |--------------------------------------------------------------------------
         */
 
@@ -203,34 +203,84 @@ if (isset($_POST['srp_save_student'])) {
 
         /*
         |--------------------------------------------------------------------------
-        | Add New Course
+        | Check Existing Course
         |--------------------------------------------------------------------------
         */
 
-        $wpdb->insert(
-
-            $courses_table,
-
-            array(
-
-                'student_id' => $student_id,
-
-                'course_name' => $course_name,
-
-                'mark_obtained' => $mark_obtained,
-
-                'grade' => $grade,
-
-                'certificate_url' => $certificate_url
-
+        $existing_course = $wpdb->get_row(
+            $wpdb->prepare(
+                "
+                SELECT * FROM {$courses_table}
+                WHERE student_id = %d
+                AND course_name = %s
+                ",
+                $student_id,
+                $course_name
             )
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Existing Course
+        |--------------------------------------------------------------------------
+        */
+
+        if ($existing_course) {
+
+            $wpdb->update(
+
+                $courses_table,
+
+                array(
+
+                    'mark_obtained' => $mark_obtained,
+
+                    'grade' => $grade,
+
+                    'certificate_url' => $certificate_url
+
+                ),
+
+                array(
+
+                    'id' => $existing_course->id
+
+                )
+            );
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Insert New Course
+            |--------------------------------------------------------------------------
+            */
+
+            $wpdb->insert(
+
+                $courses_table,
+
+                array(
+
+                    'student_id' => $student_id,
+
+                    'course_name' => $course_name,
+
+                    'mark_obtained' => $mark_obtained,
+
+                    'grade' => $grade,
+
+                    'certificate_url' => $certificate_url
+
+                )
+            );
+        }
 
     } else {
 
         /*
         |--------------------------------------------------------------------------
-        | Create Student
+        | Create New Student
         |--------------------------------------------------------------------------
         */
 
@@ -288,11 +338,23 @@ if (isset($_POST['srp_save_student'])) {
 
 <div class="wrap">
 
-    <h1>
+    <h1
+        style="
+            font-size:34px;
+            font-weight:800;
+            margin-bottom:10px;
+        "
+    >
         Student Result System
     </h1>
 
-    <p>
+    <p
+        style="
+            font-size:15px;
+            color:#666;
+            margin-bottom:20px;
+        "
+    >
         Shortcode:
         <strong>
             [student_result_search]
@@ -303,476 +365,507 @@ if (isset($_POST['srp_save_student'])) {
 
     <!-- Form -->
 
-    <form method="POST">
-
-        <table class="form-table">
-
-            <!-- Roll -->
-
-            <tr>
-
-                <th>
-                    Student Roll
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="roll"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->roll) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Student Name -->
-
-            <tr>
-
-                <th>
-                    Student Name
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="student_name"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->student_name) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Father Name -->
-
-            <tr>
-
-                <th>
-                    Father's Name
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="father_name"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->father_name) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Course -->
-
-            <tr>
-
-                <th>
-                    Course Name
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="course_name"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->course_name) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Mark -->
-
-            <tr>
-
-                <th>
-                    Mark
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="mark_obtained"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->mark_obtained) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Grade -->
-
-            <tr>
-
-                <th>
-                    Grade
-                </th>
-
-                <td>
-
-                    <input
-                        type="text"
-                        name="grade"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->grade) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-            <!-- Certificate URL -->
-
-            <tr>
-
-                <th>
-                    Certificate URL
-                </th>
-
-                <td>
-
-                    <input
-                        type="url"
-                        name="certificate_url"
-                        required
-                        class="regular-text"
-                        value="<?php echo $edit_data ? esc_attr($edit_data->certificate_url) : ''; ?>"
-                    >
-
-                </td>
-
-            </tr>
-
-        </table>
-
-        <?php
-
-        submit_button(
-            'Save Student & Course',
-            'primary',
-            'srp_save_student'
-        );
-
-        ?>
-
-    </form>
-
-    <hr>
-
-    <!-- Student List -->
-
-    <h2>
-        Saved Students
-    </h2>
-
-    <table class="widefat striped">
-
-        <thead>
-
-            <tr>
-
-                <th>Roll</th>
-
-                <th>Name</th>
-
-                <th>Father Name</th>
-
-                <th>Courses</th>
-
-                <th>Marks</th>
-
-                <th>Grades</th>
-
-                <th>Actions</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            <?php
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pagination
-            |--------------------------------------------------------------------------
-            */
-
-            $per_page = 10;
-
-            $current_page = isset($_GET['paged'])
-                ? max(1, intval($_GET['paged']))
-                : 1;
-
-            $offset = ($current_page - 1) * $per_page;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Total Students
-            |--------------------------------------------------------------------------
-            */
-
-            $total_students = $wpdb->get_var(
-                "
-                SELECT COUNT(*) 
-                FROM {$students_table}
-                "
-            );
-
-            $total_pages = ceil(
-                $total_students / $per_page
-            );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get Students
-            |--------------------------------------------------------------------------
-            */
-
-            $students = $wpdb->get_results(
-                $wpdb->prepare(
-                    "
-                    SELECT * FROM {$students_table}
-                    ORDER BY id DESC
-                    LIMIT %d OFFSET %d
-                    ",
-                    $per_page,
-                    $offset
-                )
-            );
-
-            if ($students) :
-
-                foreach ($students as $student) :
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Get Courses
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $courses = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "
-                            SELECT * FROM {$courses_table}
-                            WHERE student_id = %d
-                            ",
-                            $student->id
-                        )
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Student URL
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $student_url = home_url(
-                        '/students-certificate/' . $student->roll
-                    );
-            ?>
-
-                    <tr>
-
-                        <!-- Roll -->
-
-                        <td>
-                            <?php echo esc_html($student->roll); ?>
-                        </td>
-
-                        <!-- Name -->
-
-                        <td>
-                            <?php echo esc_html($student->student_name); ?>
-                        </td>
-
-                        <!-- Father -->
-
-                        <td>
-                            <?php echo esc_html($student->father_name); ?>
-                        </td>
-
-                        <!-- Courses -->
-
-                        <td>
-
-                            <?php
-
-                            if ($courses) :
-
-                                foreach ($courses as $course) :
-                            ?>
-
-                                    <div style="margin-bottom:10px;">
-
-                                        <strong>
-                                            <?php echo esc_html($course->course_name); ?>
-                                        </strong>
-
-                                    </div>
-
-                            <?php
-                                endforeach;
-
-                            endif;
-                            ?>
-
-                        </td>
-
-                        <!-- Marks -->
-
-                        <td>
-
-                            <?php
-
-                            if ($courses) :
-
-                                foreach ($courses as $course) :
-                            ?>
-
-                                    <div style="margin-bottom:10px;">
-
-                                        <?php echo esc_html($course->mark_obtained); ?>
-
-                                    </div>
-
-                            <?php
-                                endforeach;
-
-                            endif;
-                            ?>
-
-                        </td>
-
-                        <!-- Grades -->
-
-                        <td>
-
-                            <?php
-
-                            if ($courses) :
-
-                                foreach ($courses as $course) :
-                            ?>
-
-                                    <div style="margin-bottom:10px;">
-
-                                        <?php echo esc_html($course->grade); ?>
-
-                                    </div>
-
-                            <?php
-                                endforeach;
-
-                            endif;
-                            ?>
-
-                        </td>
-
-                        <!-- Actions -->
-
-                        <td>
-
-                            <!-- Edit -->
-
-                            <a
-                                href="?page=student-result-pro&edit=<?php echo $student->roll; ?>"
-                                class="button button-primary"
-                            >
-                                Edit
-                            </a>
-
-                            <!-- Delete -->
-
-                            <a
-                                href="?page=student-result-pro&delete=<?php echo $student->roll; ?>"
-                                class="button button-secondary"
-                                onclick="return confirm('Are you sure?')"
-                            >
-                                Delete
-                            </a>
-
-                            <!-- Copy URL -->
-
-                            <button
-                                class="button srp-copy-url-btn"
-                                onclick="navigator.clipboard.writeText('<?php echo esc_url($student_url); ?>'); this.innerText='Copied!';"
-                            >
-                                Copy URL
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-            <?php
-
-                endforeach;
-
-            else :
-            ?>
+    <div
+        style="
+            background:#fff;
+            padding:30px;
+            border-radius:18px;
+            margin-top:30px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.05);
+        "
+    >
+
+        <form method="POST">
+
+            <table class="form-table">
+
+                <!-- Roll -->
 
                 <tr>
 
-                    <td colspan="7">
+                    <th>
+                        Student Roll
+                    </th>
 
-                        No Student Found
+                    <td>
+
+                        <input
+                            type="text"
+                            name="roll"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->roll) : ''; ?>"
+                        >
 
                     </td>
 
                 </tr>
 
-            <?php endif; ?>
+                <!-- Student Name -->
 
-        </tbody>
+                <tr>
 
-    </table>
+                    <th>
+                        Student Name
+                    </th>
 
-    <!-- Pagination -->
+                    <td>
 
-    <div class="tablenav-pages" style="margin-top:20px;">
+                        <input
+                            type="text"
+                            name="student_name"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->student_name) : ''; ?>"
+                        >
 
-        <?php
+                    </td>
 
-        echo paginate_links(array(
+                </tr>
 
-            'base' => add_query_arg(
-                'paged',
-                '%#%'
-            ),
+                <!-- Father Name -->
 
-            'format' => '',
+                <tr>
 
-            'prev_text' => '« Prev',
+                    <th>
+                        Father's Name
+                    </th>
 
-            'next_text' => 'Next »',
+                    <td>
 
-            'total' => $total_pages,
+                        <input
+                            type="text"
+                            name="father_name"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->father_name) : ''; ?>"
+                        >
 
-            'current' => $current_page
+                    </td>
 
-        ));
+                </tr>
 
-        ?>
+                <!-- Course -->
+
+                <tr>
+
+                    <th>
+                        Course Name
+                    </th>
+
+                    <td>
+
+                        <input
+                            type="text"
+                            name="course_name"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->course_name) : ''; ?>"
+                        >
+
+                    </td>
+
+                </tr>
+
+                <!-- Mark -->
+
+                <tr>
+
+                    <th>
+                        Mark
+                    </th>
+
+                    <td>
+
+                        <input
+                            type="text"
+                            name="mark_obtained"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->mark_obtained) : ''; ?>"
+                        >
+
+                    </td>
+
+                </tr>
+
+                <!-- Grade -->
+
+                <tr>
+
+                    <th>
+                        Grade
+                    </th>
+
+                    <td>
+
+                        <input
+                            type="text"
+                            name="grade"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->grade) : ''; ?>"
+                        >
+
+                    </td>
+
+                </tr>
+
+                <!-- Certificate URL -->
+
+                <tr>
+
+                    <th>
+                        Certificate URL
+                    </th>
+
+                    <td>
+
+                        <input
+                            type="url"
+                            name="certificate_url"
+                            required
+                            class="regular-text"
+                            value="<?php echo $edit_data ? esc_attr($edit_data->certificate_url) : ''; ?>"
+                        >
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+            <?php
+
+            submit_button(
+                'Save Student & Course',
+                'primary',
+                'srp_save_student'
+            );
+
+            ?>
+
+        </form>
+
+    </div>
+
+    <!-- Student List -->
+
+    <div
+        style="
+            background:#fff;
+            padding:30px;
+            border-radius:18px;
+            margin-top:35px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.05);
+        "
+    >
+
+        <h2
+            style="
+                font-size:26px;
+                font-weight:800;
+                margin-bottom:20px;
+            "
+        >
+            Saved Students
+        </h2>
+
+        <table class="widefat striped">
+
+            <thead>
+
+                <tr>
+
+                    <th>Roll</th>
+
+                    <th>Name</th>
+
+                    <th>Father Name</th>
+
+                    <th>Courses</th>
+
+                    <th>Marks</th>
+
+                    <th>Grades</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <?php
+
+                /*
+                |--------------------------------------------------------------------------
+                | Pagination
+                |--------------------------------------------------------------------------
+                */
+
+                $per_page = 10;
+
+                $current_page = isset($_GET['paged'])
+                    ? max(1, intval($_GET['paged']))
+                    : 1;
+
+                $offset = ($current_page - 1) * $per_page;
+
+                /*
+                |--------------------------------------------------------------------------
+                | Total Students
+                |--------------------------------------------------------------------------
+                */
+
+                $total_students = $wpdb->get_var(
+                    "
+                    SELECT COUNT(*)
+                    FROM {$students_table}
+                    "
+                );
+
+                $total_pages = ceil(
+                    $total_students / $per_page
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Get Students
+                |--------------------------------------------------------------------------
+                */
+
+                $students = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT * FROM {$students_table}
+                        ORDER BY id DESC
+                        LIMIT %d OFFSET %d
+                        ",
+                        $per_page,
+                        $offset
+                    )
+                );
+
+                if ($students) :
+
+                    foreach ($students as $student) :
+
+                        $courses = $wpdb->get_results(
+                            $wpdb->prepare(
+                                "
+                                SELECT * FROM {$courses_table}
+                                WHERE student_id = %d
+                                ",
+                                $student->id
+                            )
+                        );
+
+                        $student_url = home_url(
+                            '/srp-verification/' . $student->roll
+                        );
+                ?>
+
+                        <tr>
+
+                            <!-- Roll -->
+
+                            <td>
+                                <?php echo esc_html($student->roll); ?>
+                            </td>
+
+                            <!-- Name -->
+
+                            <td>
+                                <?php echo esc_html($student->student_name); ?>
+                            </td>
+
+                            <!-- Father -->
+
+                            <td>
+                                <?php echo esc_html($student->father_name); ?>
+                            </td>
+
+                            <!-- Courses -->
+
+                            <td>
+
+                                <?php
+
+                                if ($courses) :
+
+                                    foreach ($courses as $course) :
+                                ?>
+
+                                        <div style="margin-bottom:10px;">
+
+                                            <strong>
+                                                <?php echo esc_html($course->course_name); ?>
+                                            </strong>
+
+                                        </div>
+
+                                <?php
+                                    endforeach;
+
+                                endif;
+                                ?>
+
+                            </td>
+
+                            <!-- Marks -->
+
+                            <td>
+
+                                <?php
+
+                                if ($courses) :
+
+                                    foreach ($courses as $course) :
+                                ?>
+
+                                        <div style="margin-bottom:10px;">
+
+                                            <?php echo esc_html($course->mark_obtained); ?>
+
+                                        </div>
+
+                                <?php
+                                    endforeach;
+
+                                endif;
+                                ?>
+
+                            </td>
+
+                            <!-- Grades -->
+
+                            <td>
+
+                                <?php
+
+                                if ($courses) :
+
+                                    foreach ($courses as $course) :
+                                ?>
+
+                                        <div style="margin-bottom:10px;">
+
+                                            <?php echo esc_html($course->grade); ?>
+
+                                        </div>
+
+                                <?php
+                                    endforeach;
+
+                                endif;
+                                ?>
+
+                            </td>
+
+                            <!-- Actions -->
+
+                            <td>
+
+                                <!-- Edit -->
+
+                                <a
+                                    href="?page=student-result-pro&edit=<?php echo $student->roll; ?>"
+                                    class="button button-primary"
+                                >
+                                    Edit
+                                </a>
+
+                                <!-- Delete -->
+
+                                <a
+                                    href="?page=student-result-pro&delete=<?php echo $student->roll; ?>"
+                                    class="button button-secondary"
+                                    onclick="return confirm('Are you sure?')"
+                                >
+                                    Delete
+                                </a>
+
+                                <!-- View -->
+
+                                <a
+                                    href="<?php echo esc_url($student_url); ?>"
+                                    target="_blank"
+                                    class="button"
+                                >
+                                    View
+                                </a>
+
+                                <!-- Copy URL -->
+
+                                <button
+                                    type="button"
+                                    class="button srp-copy-url-btn"
+                                    onclick="copyStudentURL(this)"
+                                    data-url="<?php echo esc_url($student_url); ?>"
+                                >
+                                    Copy URL
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                <?php
+
+                    endforeach;
+
+                else :
+                ?>
+
+                    <tr>
+
+                        <td colspan="7">
+
+                            No Student Found
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+            </tbody>
+
+        </table>
+
+        <!-- Pagination -->
+
+        <div
+            class="tablenav-pages"
+            style="margin-top:20px;"
+        >
+
+            <?php
+
+            echo paginate_links(array(
+
+                'base' => add_query_arg(
+                    'paged',
+                    '%#%'
+                ),
+
+                'format' => '',
+
+                'prev_text' => '« Prev',
+
+                'next_text' => 'Next »',
+
+                'total' => $total_pages,
+
+                'current' => $current_page
+
+            ));
+
+            ?>
+
+        </div>
 
     </div>
 
